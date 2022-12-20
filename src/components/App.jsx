@@ -63,8 +63,8 @@ export class App extends Component {
 
         {isLoading && <MagnifyingGlass
             visible={true}
-            height="80"
-            width="80"
+            height="300"
+            width="300"
             ariaLabel="MagnifyingGlass-loading"
             wrapperStyle={{}}
             wrapperClass={css.spinner}

@@ -2,7 +2,7 @@
   "name": "paul_litinskiy",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://Litinskiy.github.io/goit-react-hw-03-image-finder/",
+  "homepage": "https://litinskiy.github.io/goit-react-hw-03-image-finder/",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.3",
     "@testing-library/react": "^12.1.4",
