@@ -31,6 +31,8 @@ export class Searchbar extends Component{
                     <input
                         className={css.SearchFormInput}
                         type="text"
+                        autoComplete="off"
+                        autoFocus
                         name="query"
                         value={this.state.searchQuery}
                         onChange={this.onInputChange}
