@@ -1,79 +1,64 @@
-import axios from 'axios';
-import { Component } from 'react';
-import { MagnifyingGlass } from 'react-loader-spinner';
+import { useState, useEffect } from 'react';
+import { Loader} from './Loader/Loader'
 import { Searchbar } from './Searchbar/Searchbar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Button } from './Button/Button';
+import { fetchImages } from "../services/fetchAPI";
 import css from '../../src/styles.module.css';
 
-axios.defaults.baseURL = 'https://pixabay.com/api/';
+export function App() {
+  const [page, setPage] = useState(1);
+  const [query, setQuery] = useState('ukraine');
+  const [imageData, setImageData] = useState([]);
+  const [isLoading, setIsloading] = useState(false);
+  
+  useEffect(() => {
+    if (query) getImages();
 
-export class App extends Component {
-  state = {
-    page: 1,
-    query: '',
-    imageData: [],
-    isLoading: false,
-  };
-
-  componentDidUpdate = async (_, prevState) => {
-    const { query, page } = this.state;
-
-    if (prevState.page !== page || prevState.query !== query) {
+    async function getImages() {
       try {
-        this.setState({ isLoading: true });
-        const image = await axios
-          .get(
-            `?q=${query}&page=${page}&key=31487679-f74d16d66b223008c42dbbdd0&image_type=photo&orientation=horizontal&per_page=12`
-          )
-          .then(res => res.data.hits);
+        setIsloading(true);
+        const newImages = await fetchImages(query, page);
 
-        this.setState(prevState => ({
-          imageData: [...prevState.imageData, ...image],
-          isLoading: false,
-        }));
+        setImageData(currentImages => [...currentImages, ...newImages]);
+        setIsloading(false);
       } catch (error) {
         console.log(error);
       }
     }
-  };
+  }, [query, page]);
 
-  onSubmit = searchQuery => {
-    this.setState({
-      page: 1,
-      query: searchQuery,
-      imageData: [],
-      isLoading: false,
-    });
-  };
+  function onSubmit(searchQuery) {
+    setPage(1);
+    setQuery(searchQuery);
+    setImageData([]);
+    setIsloading(false);
+  }
 
-  onLoadMore = () => {
-    this.setState(prev => ({
-      page: prev.page + 1,
-    }));
-  };
+  function onLoadMore() {
+    setPage(page + 1);
+  }
 
-  render() {
-    const { isLoading, imageData } = this.state;
+  function bodyScrollLock(displayModal) {
+    if (!displayModal) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+    } else {
+      document.body.style.overflow = 'visible';
+      document.body.style.position = 'static';
+    }
+  }
 
     return (
       <div className={css.App}>
-        <Searchbar onSubmit={this.onSubmit} isLoading={isLoading} />
-        <ImageGallery imageData={imageData} />
+        <Searchbar onSubmit={onSubmit} isLoading={ isLoading} />
+        {!!imageData.length && (
+          <ImageGallery imageData={imageData} bodyScrollLock={bodyScrollLock} />
+        )}
 
-        {isLoading && <MagnifyingGlass
-            visible={true}
-            height="300"
-            width="300"
-            ariaLabel="MagnifyingGlass-loading"
-            wrapperStyle={{}}
-            wrapperClass={css.spinner}
-            glassColor="#c0efff"
-            color="#e15b64"
-          />
-        }
-        {!!imageData.length && <Button onLoadMore={this.onLoadMore} />}
+        {isLoading && <Loader/> }
+        {!!imageData.length && <Button onLoadMore={onLoadMore} />}
       </div>
     );
   }
-}
+
